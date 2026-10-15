@@ -15,9 +15,6 @@ Weather information is retrieved from the Open-Meteo API without requiring an AP
 **Live Website:** https:
 
 
-
-Replace `YOUR-USERNAME` with your GitHub username after deploying the project.
-
 ## Features
 
 - **City Search:** Search for weather information by entering a city name.
