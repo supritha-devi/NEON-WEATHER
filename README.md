@@ -10,9 +10,7 @@ The project combines modern web development techniques with a futuristic Vaporwa
 
 Weather information is retrieved from the Open-Meteo API without requiring an API key for standard non-commercial use.
 
-## Live Demo
 
-**Live Website:** https:
 
 
 ## Features
