@@ -12,9 +12,9 @@ Weather information is retrieved from the Open-Meteo API without requiring an AP
 
 ## Live Demo
 
-**Live Website:** https://YOUR-USERNAME.github.io/neon-weather/
+**Live Website:** https:
 
-**GitHub Repository:** https://github.com/YOUR-USERNAME/neon-weather
+
 
 Replace `YOUR-USERNAME` with your GitHub username after deploying the project.
 
