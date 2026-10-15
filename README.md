@@ -1,346 +1,70 @@
-/* =========================================
-   NEON WEATHER
-   Asynchronous JavaScript & RESTful APIs
-   ========================================= */
-
-// Get the HTML elements we need to update.
-const searchForm = document.getElementById("searchForm");
-const cityInput = document.getElementById("cityInput");
-const searchButton = document.getElementById("searchButton");
-
-const message = document.getElementById("message");
-const weatherDashboard = document.getElementById("weatherDashboard");
-const welcomePanel = document.getElementById("welcomePanel");
-
-const locationName = document.getElementById("locationName");
-const localTime = document.getElementById("localTime");
-
-const weatherVisual = document.getElementById("weatherVisual");
-const weatherDescription = document.getElementById("weatherDescription");
-const temperature = document.getElementById("temperature");
-const feelsLike = document.getElementById("feelsLike");
-
-const humidity = document.getElementById("humidity");
-const humidityBar = document.getElementById("humidityBar");
-
-const windSpeed = document.getElementById("windSpeed");
-const windBar = document.getElementById("windBar");
-
-const sunrise = document.getElementById("sunrise");
-const sunset = document.getElementById("sunset");
-
-
-// Display a message to the user.
-function showMessage(text, type = "") {
-    message.textContent = text;
-    message.className = "message";
-
-    if (type) {
-        message.classList.add(type);
-    }
-}
-
-
-// Weather information for different weather codes.
-function getWeatherDetails(code, isDay) {
-
-    if (code === 0) {
-        return {
-            description: "Clear Sky",
-            icon: isDay ? "☀" : "☾"
-        };
-    }
-
-    if (code === 1) {
-        return {
-            description: "Mainly Clear",
-            icon: isDay ? "🌤" : "☾"
-        };
-    }
-
-    if (code === 2) {
-        return {
-            description: "Partly Cloudy",
-            icon: "⛅"
-        };
-    }
-
-    if (code === 3) {
-        return {
-            description: "Overcast",
-            icon: "☁"
-        };
-    }
-
-    if ([45, 48].includes(code)) {
-        return {
-            description: "Foggy Atmosphere",
-            icon: "🌫"
-        };
-    }
-
-    if ([51, 53, 55, 56, 57].includes(code)) {
-        return {
-            description: "Drizzle",
-            icon: "🌦"
-        };
-    }
-
-    if ([61, 63, 65, 66, 67].includes(code)) {
-        return {
-            description: "Rainy Weather",
-            icon: "🌧"
-        };
-    }
-
-    if ([71, 73, 75, 77].includes(code)) {
-        return {
-            description: "Snowfall",
-            icon: "❄"
-        };
-    }
+# NEON WEATHER — Real-Time Weather Dashboard
 
-    if ([80, 81, 82].includes(code)) {
-        return {
-            description: "Rain Showers",
-            icon: "🌧"
-        };
-    }
+A responsive weather dashboard built using HTML, CSS, and JavaScript that retrieves real-time weather information through RESTful APIs. The application demonstrates asynchronous JavaScript using the Fetch API, `async/await`, error handling, and dynamic JSON data rendering.
 
-    if ([85, 86].includes(code)) {
-        return {
-            description: "Snow Showers",
-            icon: "🌨"
-        };
-    }
+## Project Overview
 
-    if ([95, 96, 99].includes(code)) {
-        return {
-            description: "Thunderstorm",
-            icon: "ϟ"
-        };
-    }
+NEON WEATHER is a web-based weather application that allows users to search for a city and view its current weather conditions through an interactive dashboard.
 
-    return {
-        description: "Weather Unavailable",
-        icon: "✧"
-    };
-}
+The project combines modern web development techniques with a futuristic Vaporwave and Pop-Art-inspired interface. Its visual design features neon colors, glassmorphism cards, atmospheric backgrounds, and responsive layouts.
 
+Weather information is retrieved from the Open-Meteo API without requiring an API key for standard non-commercial use.
 
-// Convert a time string into a readable local time.
-function formatTime(timeString) {
+## Live Demo
 
-    if (!timeString) {
-        return "--:--";
-    }
+**Live Website:** https://YOUR-USERNAME.github.io/neon-weather/
 
-    const timePart = timeString.split("T")[1];
+**GitHub Repository:** https://github.com/YOUR-USERNAME/neon-weather
 
-    if (!timePart) {
-        return "--:--";
-    }
+Replace `YOUR-USERNAME` with your GitHub username after deploying the project.
 
-    const parts = timePart.split(":");
+## Features
 
-    let hours = Number(parts[0]);
-    const minutes = parts[1];
+- **City Search:** Search for weather information by entering a city name.
+- **Real-Time Weather Data:** Retrieve current weather information using RESTful APIs.
+- **Asynchronous JavaScript:** Use `async/await` and the Fetch API to handle asynchronous requests.
+- **Weather Information:** Display temperature, feels-like temperature, humidity, wind speed, sunrise, and sunset.
+- **Dynamic Data Rendering:** Extract and display information from nested JSON responses.
+- **Error Handling:** Display appropriate messages when a city cannot be found or an API request fails.
+- **Responsive Design:** Adapt the interface to desktop, tablet, and mobile screens.
+- **Modern User Interface:** Use a futuristic Vaporwave-inspired theme with neon colors and glassmorphism.
+- **Suggested Cities:** Provide quick-search options for selected cities.
+- **Accessible Interactions:** Include semantic HTML, visible status messages, and reduced-motion support.
 
-    const period = hours >= 12 ? "PM" : "AM";
+## Technologies Used
 
-    hours = hours % 12 || 12;
+| Technology | Purpose |
+|---|---|
+| HTML5 | Structure and semantic markup |
+| CSS3 | Styling, responsive layouts, animations, and visual effects |
+| JavaScript (ES6+) | Application logic and dynamic content updates |
+| Fetch API | Retrieve data from external APIs |
+| Async/Await | Handle asynchronous operations |
+| RESTful APIs | Access weather and geocoding information |
+| JSON | Exchange and process API response data |
+| Open-Meteo API | Provide weather forecasts and current conditions |
+| GitHub Pages | Host and deploy the application |
 
-    return `${hours}:${minutes} ${period}`;
-}
+## APIs Used
 
+### 1. Open-Meteo Geocoding API
 
-// Fetch weather information for a city.
-async function getWeather(city) {
+Used to find a city's geographical coordinates from its name.
 
-    // Prevent the form from being submitted repeatedly.
-    searchButton.disabled = true;
-    searchButton.textContent = "LOADING...";
+**Endpoint:**
 
-    showMessage("Connecting to the atmospheric network...");
+`https://geocoding-api.open-meteo.com/v1/search`
 
-    try {
+The application sends the city name to the API and retrieves matching locations, including latitude and longitude.
 
-        // STEP 1: Search for the city using geocoding.
-        const geoURL =
-            "https://geocoding-api.open-meteo.com/v1/search" +
-            `?name=${encodeURIComponent(city)}` +
-            "&count=10&language=en&format=json";
+### 2. Open-Meteo Forecast API
 
-        const geoResponse = await fetch(geoURL);
+Used to retrieve current weather conditions and daily sunrise and sunset information.
 
-        // Check whether the request was successful.
-        if (!geoResponse.ok) {
-            throw new Error("Unable to search for this city.");
-        }
+**Endpoint:**
 
-        // Convert the JSON response into a JavaScript object.
-        const geoData = await geoResponse.json();
+`https://api.open-meteo.com/v1/forecast`
 
-        // Check whether the city exists.
-        if (!geoData.results || geoData.results.length === 0) {
-            throw new Error(
-                "City not found. Please check the spelling and try again."
-            );
-        }
+The application uses the geographical coordinates obtained from the geocoding API to request weather data for the selected location.
 
-        // Prefer an exact city-name match when possible.
-        const cityData = geoData.results.find(
-            item => item.name.toLowerCase() === city.toLowerCase()
-        ) || geoData.results[0];
-
-        const latitude = cityData.latitude;
-        const longitude = cityData.longitude;
-
-        // STEP 2: Request current weather and daily sunrise/sunset.
-        const weatherURL =
-            "https://api.open-meteo.com/v1/forecast" +
-            `?latitude=${latitude}` +
-            `&longitude=${longitude}` +
-            "&current=temperature_2m,relative_humidity_2m," +
-            "apparent_temperature,is_day,precipitation,weather_code,wind_speed_10m" +
-            "&daily=sunrise,sunset" +
-            "&timezone=auto" +
-            "&forecast_days=1";
-
-        const weatherResponse = await fetch(weatherURL);
-
-        if (!weatherResponse.ok) {
-            throw new Error("Unable to retrieve weather data.");
-        }
-
-        // STEP 3: Convert the weather response from JSON.
-        const weatherData = await weatherResponse.json();
-
-        // Check that the expected information exists.
-        if (!weatherData.current || !weatherData.daily) {
-            throw new Error("The weather service returned incomplete data.");
-        }
-
-        // STEP 4: Display the weather information.
-        displayWeather(cityData, weatherData);
-
-        showMessage(
-            "Weather data updated successfully.",
-            "success"
-        );
-
-    } catch (error) {
-
-        // Handle invalid cities, network failures, and API errors.
-        console.error("Weather request failed:", error);
-
-        showMessage(
-            error instanceof TypeError
-                ? "Network error. Check your internet connection and try again."
-                : error.message || "Something went wrong. Please try again.",
-            "error"
-        );
-
-    } finally {
-
-        // Restore the search button even when an error occurs.
-        searchButton.disabled = false;
-        searchButton.innerHTML = 'EXPLORE <span aria-hidden="true">↗</span>';
-
-    }
-}
-
-
-// Update the page using the weather data.
-function displayWeather(cityData, data) {
-
-    const current = data.current;
-    const daily = data.daily;
-
-    // Display city and country.
-    locationName.textContent =
-        `${cityData.name}, ${cityData.country || cityData.admin1 || ""}`
-        .replace(/,\s*$/, "");
-
-    // Display the local date and time returned by the API.
-    localTime.textContent =
-        `LOCAL TIME: ${current.time.replace("T", " ")}`;
-
-    // Get the weather description and icon.
-    const weather = getWeatherDetails(
-        current.weather_code,
-        current.is_day
-    );
-
-    weatherDescription.textContent = weather.description;
-    weatherVisual.textContent = weather.icon;
-
-    // Display temperature.
-    temperature.textContent =
-        Math.round(current.temperature_2m);
-
-    // Display the apparent temperature.
-    feelsLike.textContent =
-        `Feels like ${Math.round(current.apparent_temperature)}°C`;
-
-    // Display humidity and update its progress bar.
-    humidity.textContent =
-        current.relative_humidity_2m;
-
-    humidityBar.style.width =
-        `${Math.min(100, Math.max(0, current.relative_humidity_2m))}%`;
-
-    // Convert wind speed from metres per second where necessary.
-    // Open-Meteo returns km/h by default for this request.
-    windSpeed.textContent =
-        Number(current.wind_speed_10m).toFixed(1);
-
-    // Scale the wind indicator visually.
-    windBar.style.width =
-        `${Math.min(100, Math.max(0, current.wind_speed_10m * 2))}%`;
-
-    // Display sunrise and sunset in the city's local time.
-    sunrise.textContent =
-        formatTime(daily.sunrise?.[0]);
-
-    sunset.textContent =
-        formatTime(daily.sunset?.[0]);
-
-    // Reveal the weather dashboard.
-    weatherDashboard.hidden = false;
-    welcomePanel.hidden = true;
-}
-
-
-// Listen for a search form submission.
-searchForm.addEventListener("submit", function (event) {
-
-    // Stop the browser from reloading the page.
-    event.preventDefault();
-
-    const city = cityInput.value.trim();
-
-    if (!city) {
-        showMessage("Please enter a city name.", "error");
-        cityInput.focus();
-        return;
-    }
-
-    getWeather(city);
-});
-
-
-// Allow the suggested-city buttons to perform searches.
-document.querySelectorAll(".city-chip").forEach(button => {
-
-    button.addEventListener("click", function () {
-
-        const city = this.dataset.city;
-
-        cityInput.value = city;
-
-        getWeather(city);
-
-    });
-
-});
+**Official Documentation:** https://open-meteo.com/en
